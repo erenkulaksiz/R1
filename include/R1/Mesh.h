@@ -29,24 +29,25 @@ namespace R1
     ~Mesh();
     void setup();
     void cleanup();
-    void render(Camera *camera, std::vector<Light *> pointLightMeshes);
+    void render(Camera *camera, std::vector<Light *> pointLightMeshes, bool *isLightsEnabled);
     void setPosition(glm::vec3 position);
     void setRotation(glm::vec3 rotation);
     void setScale(glm::vec3 scale);
     void setName(std::string name);
     void setCamera(Camera &camera);
     void setColor(glm::vec4 color);
-    void setTexture(Texture *texture);
     void setShader(Shader &shader);
     void setIsSelected(bool isSelected);
     void setIsBillboard(bool isBillboard);
     void setIsCamera(bool isCamera);
     void setIsCameraDeleted(bool isCameraDeleted);
     void setIsVisible(bool isVisible);
+    void addTexture(Texture *texture);
     void deleteCamera();
     Camera *getCamera();
     std::string getName();
     Shader *getShader();
+    std::vector<R1::Texture *> getTextures();
     glm::vec3 getPosition();
     glm::vec3 getRotation();
     glm::vec3 getScale();
@@ -73,7 +74,7 @@ namespace R1
     }
 
   protected:
-    Texture *texture;
+    std::vector<R1::Texture *> textures;
     Camera *camera;
     Shader *shader;
     std::string name;
@@ -85,6 +86,7 @@ namespace R1
     bool isBillboard = false;
     bool isSelected = false;
     bool isTextured = false;
+    bool isMultipleTextured = false;
     bool isCamera = false;
     bool isVisible = true;
     VAO *vao;

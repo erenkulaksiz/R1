@@ -131,7 +131,7 @@ void R1::Light::render(Camera *camera)
   shader->activate();
   shader->setView(camera->getViewMatrix());
   shader->setProjection(camera->getProjectionMatrix());
-  texture->bind();
+  textures[0]->bind();
   shader->setCameraPos(camera->getMesh()->getPosition());
   shader->setColor(lightSourceColor);
   shader->setBillboardPos(position);

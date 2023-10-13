@@ -67,11 +67,12 @@ void R1::Imgui::drawGui()
     scene->isPlaying = !scene->isPlaying;
   }
 
-  if (ImGui::CollapsingHeader("settings"))
+  if (ImGui::CollapsingHeader("editor"))
   {
     ImGui::Checkbox("draw lines", &scene->isDrawingLines);
     ImGui::Checkbox("show light meshes", &scene->isLightMeshesVisible);
     ImGui::Checkbox("vsync", &scene->isVsyncEnabled);
+    ImGui::Checkbox("lights", &scene->isLightsEnabled);
   }
 
   if (ImGui::CollapsingHeader("statistics"))
@@ -333,6 +334,20 @@ void R1::Imgui::drawGui()
         if (ImGui::DragFloat("fov", &fov, 0.1f, 30.0f, 180.0f))
         {
           scene->meshes[selectedMeshIndex]->getCamera()->setFov(fov);
+        }
+      }
+    }
+
+    if (scene->meshes[selectedMeshIndex]->getIsTextured())
+    {
+      if (ImGui::CollapsingHeader("textures"))
+      {
+        std::vector<R1::Texture *> textures = scene->meshes[selectedMeshIndex]->getTextures();
+        for (Texture *texture : textures)
+        {
+          ImGui::Image((void *)(intptr_t)texture->ID, ImVec2(64, 64));
+          ImGui::SameLine();
+          ImGui::Text(texture->image);
         }
       }
     }

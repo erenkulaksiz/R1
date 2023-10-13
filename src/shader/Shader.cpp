@@ -170,6 +170,11 @@ void R1::Shader::setMaterialShininess(float shininess)
   glUniform1f(glGetUniformLocation(ID, "material.shininess"), shininess);
 }
 
+void R1::Shader::setLightsEnabled(bool enabled)
+{
+  glUniform1i(glGetUniformLocation(ID, "lightsEnabled"), enabled);
+}
+
 void R1::Shader::setBillboardPos(glm::vec3 pos)
 {
   glUniform3fv(glGetUniformLocation(ID, "billboardPos"), 1, glm::value_ptr(pos));

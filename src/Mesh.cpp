@@ -8,6 +8,7 @@
 #include <R1/shader/VBO.h>
 #include <R1/shader/EBO.h>
 #include <R1/Mesh.h>
+#include <R1/Texture.h>
 
 R1::Mesh::Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount, Shader *shader)
 {
@@ -159,12 +160,6 @@ bool R1::Mesh::getIsSelected()
   return isSelected;
 }
 
-void R1::Mesh::setTexture(Texture *texture)
-{
-  this->texture = texture;
-  isTextured = true;
-}
-
 void R1::Mesh::setIsBillboard(bool isBillboard)
 {
   this->isBillboard = isBillboard;
@@ -225,7 +220,34 @@ bool R1::Mesh::getIsVisible()
   return isVisible;
 }
 
-void R1::Mesh::render(Camera *camera, std::vector<Light *> pointLightMeshes)
+glm::vec3 R1::Mesh::getFront()
+{
+  return glm::vec3(0.0f, 0.0f, -1.0f);
+}
+
+glm::vec3 R1::Mesh::getUp()
+{
+  return glm::vec3(0.0f, 1.0f, 0.0f);
+}
+
+std::vector<R1::Texture *> R1::Mesh::getTextures()
+{
+
+  return textures;
+}
+
+void R1::Mesh::addTexture(Texture *texture)
+{
+  textures.push_back(texture);
+  if (textures.size() > 1 && isMultipleTextured == false)
+  {
+    std::cout << "Mesh::addTexture() textures.size() > 1" << std::endl;
+    isMultipleTextured = true;
+  }
+  isTextured = true;
+}
+
+void R1::Mesh::render(Camera *camera, std::vector<Light *> pointLightMeshes, bool *isLightsEnabled)
 {
   if (isCamera)
   {
@@ -253,9 +275,18 @@ void R1::Mesh::render(Camera *camera, std::vector<Light *> pointLightMeshes)
   shader->setView(camera->getViewMatrix());
   shader->setProjection(camera->getProjectionMatrix());
 
+  if (*isLightsEnabled)
+  {
+    shader->setLightsEnabled(true);
+  }
+  else
+  {
+    shader->setLightsEnabled(false);
+  }
+
   if (isTextured)
   {
-    texture->bind();
+    textures[0]->bind();
   }
 
   shader->setCameraPos(camera->getMesh()->getPosition());
@@ -309,7 +340,10 @@ void R1::Mesh::cleanup()
   scaleChangeCallback = nullptr;
   if (isTextured)
   {
-    texture->cleanup();
+    for (Texture *texture : textures)
+    {
+      texture->cleanup();
+    }
   }
   vao->cleanup();
   vbo->cleanup();

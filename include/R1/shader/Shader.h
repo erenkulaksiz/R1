@@ -26,6 +26,7 @@ namespace R1
     void setColor(glm::vec4 color);
     void setCameraPos(glm::vec3 pos);
     void setBillboardPos(glm::vec3 pos);
+    void setLightsEnabled(bool enabled);
     void setPointLightColor(int index, glm::vec4 color);
     void setPointLightPos(int index, glm::vec3 pos);
     void setPointLightAmbient(int index, glm::vec3 ambient);

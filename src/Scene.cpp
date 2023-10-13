@@ -147,7 +147,7 @@ void R1::Scene::setup()
     Mesh *mesh = new Mesh(position, rotation, glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices), texturedShader);
     mesh->setup();
     mesh->setName("cube " + std::to_string(index));
-    mesh->setTexture(defaultTexture);
+    mesh->addTexture(defaultTexture);
     meshes.push_back(mesh);
   }
 
@@ -162,7 +162,7 @@ void R1::Scene::setup()
   Mesh *billboard = new Mesh(glm::vec3(5.0f, 8.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), billboardShader);
   billboard->setup();
   billboard->setName("billboard");
-  billboard->setTexture(billboardTexture);
+  billboard->addTexture(billboardTexture);
   billboard->setIsBillboard(true);
   meshes.push_back(billboard);
 
@@ -175,7 +175,7 @@ void R1::Scene::setup()
   Light *pointLight = new Light(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), pointLightShader);
   pointLight->setup();
   pointLight->setName("point light");
-  pointLight->setTexture(pointLightTexture);
+  pointLight->addTexture(pointLightTexture);
   pointLight->setIsPointLight(true);
   pointLight->setLightSourceColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
   pointLightMeshes.push_back(pointLight);
@@ -190,7 +190,7 @@ void R1::Scene::setup()
   Light *pointLight2 = new Light(glm::vec3(4.0f, 4.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), pointLightShader2);
   pointLight2->setup();
   pointLight2->setName("point light 2");
-  pointLight2->setTexture(pointLightTexture2);
+  pointLight2->addTexture(pointLightTexture2);
   pointLight2->setIsPointLight(true);
   pointLight2->setLightSourceColor(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
   pointLightMeshes.push_back(pointLight2);
@@ -259,7 +259,7 @@ void R1::Scene::loop()
     }
     else
     {
-      mesh->render(camera, pointLightMeshes);
+      mesh->render(camera, pointLightMeshes, &isLightsEnabled);
     }
     if (mesh->getIsSelected() && isDrawingLines)
     {

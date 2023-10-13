@@ -25,6 +25,7 @@ namespace R1
     bool isDrawingLines = true;
     bool isLightMeshesVisible = true;
     bool isVsyncEnabled = true;
+    bool isLightsEnabled = true;
     float previousFrame;
     float fps;
     float deltaTime;

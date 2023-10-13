@@ -32,6 +32,7 @@ struct PointLight {
 
 uniform int numberOfPointLights;
 uniform vec3 camPos;
+uniform bool lightsEnabled;
 uniform Material material;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
@@ -67,11 +68,15 @@ void main() {
 
   vec3 result = vec3(0.0);
 
-  for (int i = 0; i < numberOfPointLights; ++i) {
-    if (!pointLights[i].enabled) {
-      continue;
+  if(lightsEnabled) {
+    for (int i = 0; i < numberOfPointLights; ++i) {
+      if (!pointLights[i].enabled) {
+        continue;
+      }
+      result += CalcPointLight(pointLights[i], normal, FragPos, viewDir);
     }
-    result += CalcPointLight(pointLights[i], normal, FragPos, viewDir);
+  } else {
+    result = vec3(texture(material.diffuse, texCoord));
   }
 
 	FragColor = vec4(result, 1.0f);

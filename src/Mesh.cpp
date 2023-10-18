@@ -12,11 +12,20 @@
 
 R1::Mesh::Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount, Shader *shader)
 {
-  std::cout << "Mesh::Mesh()" << std::endl;
+  std::cout << "Mesh::Mesh(long one)" << std::endl;
   this->vertices = vertices;
   this->indices = indices;
   this->vertexCount = vertexCount;
   this->indexCount = indexCount;
+  this->position = position;
+  this->rotation = rotation;
+  this->scale = scale;
+  this->shader = shader;
+}
+
+R1::Mesh::Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, Shader *shader)
+{
+  std::cout << "Mesh::Mesh(middle)" << std::endl;
   this->position = position;
   this->rotation = rotation;
   this->scale = scale;
@@ -33,10 +42,9 @@ void R1::Mesh::setup()
   vbo = new VBO(vertices, vertexCount);
   ebo = new EBO(indices, indexCount);
 
-  vao->linkAttrib(*vbo, 0, 3, GL_FLOAT, 11 * sizeof(float), (void *)0);
-  vao->linkAttrib(*vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void *)(3 * sizeof(float)));
-  vao->linkAttrib(*vbo, 2, 2, GL_FLOAT, 11 * sizeof(float), (void *)(6 * sizeof(float)));
-  vao->linkAttrib(*vbo, 3, 3, GL_FLOAT, 11 * sizeof(float), (void *)(8 * sizeof(float)));
+  vao->linkAttrib(*vbo, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
+  vao->linkAttrib(*vbo, 1, 2, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+  vao->linkAttrib(*vbo, 2, 3, GL_FLOAT, 8 * sizeof(float), (void *)(5 * sizeof(float)));
   vao->unbind();
   vbo->unbind();
   ebo->unbind();
@@ -45,6 +53,23 @@ void R1::Mesh::setup()
 R1::Mesh::Mesh()
 {
   std::cout << "Mesh::Mesh() no args" << std::endl;
+}
+
+void R1::Mesh::setVertices(float *vertices, size_t vertexCount)
+{
+  this->vertices = vertices;
+  this->vertexCount = vertexCount;
+}
+
+void R1::Mesh::setIndices(unsigned int *indices, size_t indexCount)
+{
+  this->indices = indices;
+  this->indexCount = indexCount;
+}
+
+int R1::Mesh::getVerticesCount()
+{
+  return vertexCount;
 }
 
 void R1::Mesh::setCamera(Camera &camera)
@@ -232,16 +257,17 @@ glm::vec3 R1::Mesh::getUp()
 
 std::vector<R1::Texture *> R1::Mesh::getTextures()
 {
-
   return textures;
 }
 
 void R1::Mesh::addTexture(Texture *texture)
 {
+  std::cout << "Mesh::addTexture() " << texture->imagePath << std::endl;
   textures.push_back(texture);
   if (textures.size() > 1 && isMultipleTextured == false)
   {
-    std::cout << "Mesh::addTexture() textures.size() > 1" << std::endl;
+    std::cout << "Mesh::addTexture() textures.size() > 1"
+              << " " << textures.size() << std::endl;
     isMultipleTextured = true;
   }
   isTextured = true;

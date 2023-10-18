@@ -1,12 +1,13 @@
 #include <glad/glad.h>
 #include <iostream>
+#include <string>
 #include <R1/Texture.h>
 
-R1::Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType)
+R1::Texture::Texture(std::string imagePath, GLenum texType, GLenum slot, GLenum format, GLenum pixelType)
 {
-  std::cout << "Texture::Texture()" << std::endl;
+  std::cout << "Texture::Texture() " << imagePath << std::endl;
   this->texType = texType;
-  this->image = image;
+  this->imagePath = imagePath;
   this->slot = slot;
   this->format = format;
   this->pixelType = pixelType;
@@ -17,7 +18,7 @@ void R1::Texture::setup()
   std::cout << "Texture::setup()" << ID << std::endl;
   int widthImg, heightImg, numColCh;
   stbi_set_flip_vertically_on_load(true);
-  unsigned char *bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
+  unsigned char *bytes = stbi_load(imagePath.c_str(), &widthImg, &heightImg, &numColCh, 0);
 
   glGenTextures(1, &ID);
   glActiveTexture(slot);

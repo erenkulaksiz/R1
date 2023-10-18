@@ -4,78 +4,15 @@
 #include <R1/Camera.h>
 #include <R1/Line.h>
 #include <R1/Light.h>
-
-GLfloat cubeVertices[] = {
-    //     COORDINATES     /        COLORS      /   TexCoord  /   normals
-    // front face
-    -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, // Front bottom-left
-    0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,  // Front bottom-right
-    0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,   // Front top-right
-    -0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f,  // Front top-left
-
-    // Back face
-    -0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Back bottom-left
-    0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // Back bottom-right
-    0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,   // Back top-right
-    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // Back top-left
-
-    // Left face
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Left bottom-left
-    -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,  // Left top-left
-    -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,   // Left top-right
-    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,  // Left bottom-right
-
-    // Right face
-    0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Right bottom-left
-    0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,  // Right top-left
-    0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,   // Right top-right
-    0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Right bottom-right
-
-    // Top face
-    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, // Top bottom-left
-    0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // Top bottom-right
-    0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // Top top-right
-    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // Top top-left
-
-    // Bottom face
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, // Bottom bottom-left
-    0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f,  // Bottom bottom-right
-    0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f,   // Bottom top-right
-    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,  // Bottom top-left
-};
-
-GLuint cubeIndices[] = {
-    // Front face
-    0, 1, 2,
-    2, 3, 0,
-
-    // Back face
-    4, 5, 6,
-    6, 7, 4,
-
-    // Left face
-    8, 9, 10,
-    10, 11, 8,
-
-    // Right face
-    12, 13, 14,
-    14, 15, 12,
-
-    // Top face
-    16, 17, 18,
-    18, 19, 16,
-
-    // Bottom face
-    20, 21, 22,
-    22, 23, 20};
+#include <R1/ModelHandler.h>
 
 GLfloat planeVertices[] =
     {
-        //     COORDINATES     /        COLORS      /   TexCoord  /   normals
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Lower left corner
-        -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // Upper left corner
-        0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,   // Upper right corner
-        0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // Lower right corner
+        //     COORDINATES     / TexCoord  /   normals
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Lower left corner
+        -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // Upper left corner
+        0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,   // Upper right corner
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // Lower right corner
 };
 
 GLuint planeIndices[] =
@@ -130,12 +67,6 @@ void R1::Scene::setup()
   yline->setColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
   zline->setColor(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-  Shader *texturedShader = new Shader("shaders/default_light.vert", "shaders/default_light.frag");
-  texturedShader->setup();
-  Texture *defaultTexture = new Texture("resources/default3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-  defaultTexture->setup();
-  defaultTexture->texUnit(texturedShader, "tex0", 0);
-
   for (int index = 0; index < cubePositions.size(); ++index)
   {
     const glm::vec3 &position = cubePositions[index];
@@ -144,11 +75,13 @@ void R1::Scene::setup()
     {
       rotation = glm::vec3(0.0f, 45.0f, 0.0f);
     }
-    Mesh *mesh = new Mesh(position, rotation, glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices), texturedShader);
-    mesh->setup();
-    mesh->setName("cube " + std::to_string(index));
-    mesh->addTexture(defaultTexture);
-    meshes.push_back(mesh);
+
+    ModelHandler *testCube = new ModelHandler("resources/cube_textured.obj");
+    std::vector<Mesh *> testCubeMesh = testCube->loadMeshes();
+    testCubeMesh[0]->setRotation(rotation);
+    testCubeMesh[0]->setPosition(position);
+
+    meshes.push_back(testCubeMesh[0]);
   }
 
   Shader *billboardShader = new Shader("shaders/billboard.vert", "shaders/billboard.frag");
@@ -157,13 +90,11 @@ void R1::Scene::setup()
   billboardTexture->setup();
   billboardTexture->texUnit(billboardShader, "tex0", 0);
 
-  std::cout << "billboardShader.ID: " << billboardShader->getId() << std::endl;
-
   Mesh *billboard = new Mesh(glm::vec3(5.0f, 8.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), billboardShader);
-  billboard->setup();
   billboard->setName("billboard");
   billboard->addTexture(billboardTexture);
   billboard->setIsBillboard(true);
+  billboard->setup();
   meshes.push_back(billboard);
 
   Shader *pointLightShader = new Shader("shaders/point_light.vert", "shaders/point_light.frag");
@@ -173,11 +104,11 @@ void R1::Scene::setup()
   pointLightTexture->texUnit(pointLightShader, "tex0", 0);
 
   Light *pointLight = new Light(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), pointLightShader);
-  pointLight->setup();
   pointLight->setName("point light");
   pointLight->addTexture(pointLightTexture);
   pointLight->setIsPointLight(true);
   pointLight->setLightSourceColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+  pointLight->setup();
   pointLightMeshes.push_back(pointLight);
   meshes.push_back(pointLight);
 
@@ -188,13 +119,20 @@ void R1::Scene::setup()
   pointLightTexture2->texUnit(pointLightShader2, "tex0", 0);
 
   Light *pointLight2 = new Light(glm::vec3(4.0f, 4.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), pointLightShader2);
-  pointLight2->setup();
   pointLight2->setName("point light 2");
   pointLight2->addTexture(pointLightTexture2);
   pointLight2->setIsPointLight(true);
   pointLight2->setLightSourceColor(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+  pointLight2->setup();
   pointLightMeshes.push_back(pointLight2);
   meshes.push_back(pointLight2);
+
+  ModelHandler *testPlane = new ModelHandler("resources/test_plane.obj");
+  std::vector<Mesh *> testPlaneMeshes = testPlane->loadMeshes();
+  for (Mesh *mesh : testPlaneMeshes)
+  {
+    meshes.push_back(mesh);
+  }
 }
 
 R1::Camera *R1::Scene::getCamera()
@@ -280,6 +218,7 @@ void R1::Scene::loop()
 
   if (isDrawingLines)
   {
+    glDisable(GL_DEPTH_TEST);
     originXLine->render(camera->getViewMatrix(), camera->getProjectionMatrix());
     originYLine->render(camera->getViewMatrix(), camera->getProjectionMatrix());
     originZLine->render(camera->getViewMatrix(), camera->getProjectionMatrix());

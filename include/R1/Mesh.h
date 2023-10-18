@@ -25,11 +25,14 @@ namespace R1
   {
   public:
     Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount, Shader *shader);
+    Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, Shader *shader);
     Mesh();
     ~Mesh();
     void setup();
     void cleanup();
     void render(Camera *camera, std::vector<Light *> pointLightMeshes, bool *isLightsEnabled);
+    void setIndices(unsigned int *indices, size_t indexCount);
+    void setVertices(float *vertices, size_t vertexCount);
     void setPosition(glm::vec3 position);
     void setRotation(glm::vec3 rotation);
     void setScale(glm::vec3 scale);
@@ -44,8 +47,8 @@ namespace R1
     void setIsVisible(bool isVisible);
     void addTexture(Texture *texture);
     void deleteCamera();
-    Camera *getCamera();
     std::string getName();
+    Camera *getCamera();
     Shader *getShader();
     std::vector<R1::Texture *> getTextures();
     glm::vec3 getPosition();
@@ -62,6 +65,7 @@ namespace R1
     bool getIsVisible();
     int getVertexCount();
     int getIndexCount();
+    int getVerticesCount();
     PositionChangeCallback positionChangeCallback = nullptr;
     RotationChangeCallback rotationChangeCallback = nullptr;
     ScaleChangeCallback scaleChangeCallback = nullptr;
@@ -74,7 +78,7 @@ namespace R1
     }
 
   protected:
-    std::vector<R1::Texture *> textures;
+    std::vector<Texture *> textures;
     Camera *camera;
     Shader *shader;
     std::string name;

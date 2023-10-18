@@ -213,6 +213,7 @@ void R1::Imgui::drawGui()
       {
         scene->meshes[selectedMeshIndex]->setIsVisible(isVisible);
       }
+      ImGui::Text("vertex count: %d", scene->meshes[selectedMeshIndex]->getVertexCount());
     }
 
     char meshName[128];
@@ -293,17 +294,17 @@ void R1::Imgui::drawGui()
               glm::vec3 ambient = light->getLightSourceAmbient();
               if (ImGui::DragFloat("ambient", &ambient.x, 0.01f, 0.0f, 50.0f))
               {
-                light->setLightSourceAmbient(ambient);
+                light->setLightSourceAmbient(glm::vec3(ambient.x, ambient.x, ambient.x));
               }
               glm::vec3 diffuse = light->getLightSourceDiffuse();
               if (ImGui::DragFloat("diffuse", &diffuse.x, 0.01f, 0.0f, 50.0f))
               {
-                light->setLightSourceDiffuse(diffuse);
+                light->setLightSourceDiffuse(glm::vec3(diffuse.x, diffuse.x, diffuse.x));
               }
               glm::vec3 specular = light->getLightSourceSpecular();
               if (ImGui::DragFloat("specular", &specular.x, 0.01f, 0.0f, 50.0f))
               {
-                light->setLightSourceSpecular(specular);
+                light->setLightSourceSpecular(glm::vec3(specular.x, specular.x, specular.x));
               }
               float constant = light->getLightSourceConstant();
               if (ImGui::DragFloat("constant", &constant, 0.01f, 0.0f, 50.0f))
@@ -340,14 +341,18 @@ void R1::Imgui::drawGui()
 
     if (scene->meshes[selectedMeshIndex]->getIsTextured())
     {
-      if (ImGui::CollapsingHeader("textures"))
+      std::vector<R1::Texture *> textures = scene->meshes[selectedMeshIndex]->getTextures();
+      if (!textures.empty())
       {
-        std::vector<R1::Texture *> textures = scene->meshes[selectedMeshIndex]->getTextures();
-        for (Texture *texture : textures)
+        std::string texturesTitle = "textures (" + std::to_string(textures.size()) + ")";
+        if (ImGui::CollapsingHeader(texturesTitle.c_str()))
         {
-          ImGui::Image((void *)(intptr_t)texture->ID, ImVec2(64, 64));
-          ImGui::SameLine();
-          ImGui::Text(texture->image);
+          for (Texture *texture : textures)
+          {
+            ImGui::Image((void *)(intptr_t)texture->ID, ImVec2(64, 64));
+            ImGui::SameLine();
+            ImGui::Text(texture->imagePath.c_str());
+          }
         }
       }
     }

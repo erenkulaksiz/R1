@@ -10,11 +10,12 @@
         "-I${workspaceFolder}/include",
         "-L${workspaceFolder}/lib",
         "${workspaceFolder}/src/\\*.cpp",
-        "${workspaceFolder}/src/Shader/\\*.cpp",
+        "${workspaceFolder}/src/shader/\\*.cpp",
         "${workspaceFolder}/src/stb/\\*.cpp",
         "${workspaceFolder}/src/glad/glad.c",
         "${workspaceFolder}/src/imgui/*.cpp",
         "-lglfw3dll",
+        "-lassimpdll",
         "-o",
         "${workspaceFolder}/program.exe"
       ],

@@ -23,12 +23,18 @@ namespace R1
     void setLightSourceConstant(float constant);
     void setLightSourceLinear(float linear);
     void setLightSourceQuadratic(float quadratic);
+    void setLightSourceDirection(glm::vec3 direction);
     void setIsPointLight(bool isPointLight);
+    void setIsDirectionalLight(bool isDirectionalLight);
+    void setIsSpotLight(bool isSpotLight);
     bool getIsPointLight();
+    bool getIsDirectionalLight();
+    bool getIsSpotLight();
     float getLightSourceIntensity();
     glm::vec3 getLightSourceAmbient();
     glm::vec3 getLightSourceDiffuse();
     glm::vec3 getLightSourceSpecular();
+    glm::vec3 getLightSourceDirection();
     float getLightSourceConstant();
     float getLightSourceLinear();
     float getLightSourceQuadratic();
@@ -47,8 +53,11 @@ namespace R1
     float lightSourceLinear = 0.09f;
     float lightSourceQuadratic = 0.032f;
     glm::vec4 lightSourceColor;
+    glm::vec3 lightSourceDirection = glm::vec3(-1.0f, 0.0f, 0.0f);
     float lightSourceIntensity = 1.0f;
     bool isPointLight = false;
+    bool isDirectionalLight = false;
+    bool isSpotLight = false;
   };
 };
 

@@ -1,4 +1,6 @@
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -14,12 +16,12 @@ R1::ModelHandler::ModelHandler(std::string fileName)
   this->fileName = fileName;
 }
 
-std::vector<R1::Mesh *> R1::ModelHandler::loadMeshes()
+std::vector<R1::Mesh *> R1::ModelHandler::loadMeshes(const char *vertexPath, const char *fragmentPath)
 {
   std::cout << "Model::loadMeshes()" << std::endl;
 
   Assimp::Importer importer;
-  const aiScene *scene = importer.ReadFile(fileName, aiProcess_JoinIdenticalVertices | aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_FlipUVs);
+  const aiScene *scene = importer.ReadFile(fileName, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate);
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
@@ -29,15 +31,21 @@ std::vector<R1::Mesh *> R1::ModelHandler::loadMeshes()
 
   for (unsigned int i = 0; i < scene->mNumMeshes; i++)
   {
-    Shader *shader = new Shader("shaders/default_light.vert", "shaders/default_light.frag");
-    shader->setup();
-    Mesh *model = new Mesh(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(0.0f), glm::vec3(1.0f), shader);
     aiMesh *mesh = scene->mMeshes[i];
+    Shader *shader = new Shader(vertexPath, fragmentPath);
+    shader->setup();
+    Mesh *model = new Mesh(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f), shader);
+    model->setName(mesh->mName.C_Str());
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture *> textures;
     vertices.reserve(mesh->mNumVertices * 8);
     indices.reserve(mesh->mNumFaces * 3);
+
+    if (scene->mNumMaterials == 0)
+    {
+      std::cout << "no materials for object - file " << fileName << std::endl;
+    }
 
     for (int j = 0; j < scene->mNumMaterials; j++)
     {
@@ -45,14 +53,53 @@ std::vector<R1::Mesh *> R1::ModelHandler::loadMeshes()
       aiString texturePath;
       if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS)
       {
+        std::string textureFilePath = "resources/" + std::string(texturePath.C_Str());
+
         if (texturePath.length > 0)
         {
-          std::string textureFilePath = "resources/" + std::string(texturePath.C_Str());
+          std::cout << "diffuse texture path: " << textureFilePath << std::endl;
 
-          Texture *texture = new Texture(textureFilePath, GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-          texture->setup();
-          texture->texUnit(shader, "tex0", 0);
-          model->addTexture(texture);
+          /*
+          aiUVTransform uvTransform;
+          if (material->Get(AI_MATKEY_UVTRANSFORM(aiTextureType_DIFFUSE, 0), uvTransform) == AI_SUCCESS)
+          {
+            std::cout << "uv transform: " << uvTransform.mTranslation.x << ", " << uvTransform.mTranslation.y << std::endl;
+            std::cout << "uv transform: " << uvTransform.mScaling.x << ", " << uvTransform.mScaling.y << std::endl;
+            std::cout << "uv transform: " << uvTransform.mRotation << std::endl;
+          }
+          */
+
+          Texture *diffuseTexture = new Texture(textureFilePath, GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+          diffuseTexture->setup();
+          diffuseTexture->texUnit(shader, "material.diffuse", 0);
+          diffuseTexture->isDiffuse = true;
+          model->addTexture(diffuseTexture);
+        }
+      }
+
+      if (material->GetTexture(aiTextureType_HEIGHT, 0, &texturePath) == AI_SUCCESS)
+      {
+        std::string textureFilePath = "resources/" + std::string(texturePath.C_Str());
+
+        if (texturePath.length > 0)
+        {
+          std::cout << "normal texture path: " << textureFilePath << std::endl;
+
+          /*
+          aiUVTransform uvTransform;
+          if (material->Get(AI_MATKEY_UVTRANSFORM(aiTextureType_HEIGHT, 0), uvTransform) == AI_SUCCESS)
+          {
+            std::cout << "uv transform: " << uvTransform.mTranslation.x << ", " << uvTransform.mTranslation.y << std::endl;
+            std::cout << "uv transform: " << uvTransform.mScaling.x << ", " << uvTransform.mScaling.y << std::endl;
+            std::cout << "uv transform: " << uvTransform.mRotation << std::endl;
+          }
+          */
+
+          Texture *normalTexture = new Texture(textureFilePath, GL_TEXTURE_2D, GL_TEXTURE1, GL_UNSIGNED_BYTE);
+          normalTexture->setup();
+          normalTexture->texUnit(shader, "material.normalMap", 1);
+          normalTexture->isNormal = true;
+          model->addTexture(normalTexture);
         }
       }
     }
@@ -94,7 +141,6 @@ std::vector<R1::Mesh *> R1::ModelHandler::loadMeshes()
     }
 
     model->setIndices(indices.data(), sizeof(indices[0]) * indices.size());
-    model->setName(mesh->mName.C_Str());
     model->setup();
     meshes.push_back(model);
   }

@@ -12,18 +12,23 @@ namespace R1
   class Texture
   {
   public:
-    Texture(std::string imagePath, GLenum texType, GLenum slot, GLenum format, GLenum pixelType);
+    Texture(std::string imagePath, GLenum texType, GLenum slot, GLenum pixelType);
+    Texture(GLenum texType, GLenum slot, GLenum pixelType);
     void texUnit(Shader *shader, const char *uniform, GLuint unit);
     void bind();
+    void bindShadow();
     void setup();
+    void setupShadow();
     void unbind();
     void cleanup();
     GLuint ID;
     GLenum slot;
-    GLenum format;
     GLenum texType;
     GLenum pixelType;
     std::string imagePath;
+    bool isDiffuse = false;
+    bool isSpecular = false;
+    bool isNormal = false;
   };
 }
 

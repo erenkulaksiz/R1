@@ -84,20 +84,11 @@ void R1::Imgui::drawGui()
 
   if (ImGui::CollapsingHeader("world"))
   {
-    static bool glLineRenderer = false;
-    ImGui::Checkbox("wireframe", &glLineRenderer);
+    ImGui::Checkbox("wireframe", &scene->isGlobalWireframeEnabled);
     static float backgroundColor[3] = {scene->backgroundColor.r, scene->backgroundColor.g, scene->backgroundColor.b};
     if (ImGui::ColorEdit3("background", backgroundColor))
     {
       scene->backgroundColor = glm::vec4(backgroundColor[0], backgroundColor[1], backgroundColor[2], 1.0f);
-    }
-    if (glLineRenderer)
-    {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else
-    {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     if (ImGui::BeginListBox("##world", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
@@ -204,23 +195,35 @@ void R1::Imgui::drawGui()
       }
     }
 
-    ImGui::SeparatorText("general");
-
-    if (!scene->meshes[selectedMeshIndex]->getIsCamera())
+    if (ImGui::CollapsingHeader("general"))
     {
-      bool isVisible = scene->meshes[selectedMeshIndex]->getIsVisible();
-      if (ImGui::Checkbox("visible", &isVisible))
+      if (!scene->meshes[selectedMeshIndex]->getIsCamera())
       {
-        scene->meshes[selectedMeshIndex]->setIsVisible(isVisible);
+        bool isVisible = scene->meshes[selectedMeshIndex]->getIsVisible();
+        if (ImGui::Checkbox("visible", &isVisible))
+        {
+          scene->meshes[selectedMeshIndex]->setIsVisible(isVisible);
+        }
+        bool isWireframeEnabled = scene->meshes[selectedMeshIndex]->getIsWireframeEnabled();
+        if (ImGui::Checkbox("wireframe", &isWireframeEnabled))
+        {
+          scene->meshes[selectedMeshIndex]->setIsWireframeEnabled(isWireframeEnabled);
+        }
+        bool isDepthTestEnabled = scene->meshes[selectedMeshIndex]->getIsDepthTestEnabled();
+        if (ImGui::Checkbox("depth test", &isDepthTestEnabled))
+        {
+          scene->meshes[selectedMeshIndex]->setIsDepthTestEnabled(isDepthTestEnabled);
+        }
+        ImGui::Text("vertex count: %d", scene->meshes[selectedMeshIndex]->getVertexCount());
+        ImGui::Text("face count: %d", scene->meshes[selectedMeshIndex]->getVertexCount() / 64 / 2);
       }
-      ImGui::Text("vertex count: %d", scene->meshes[selectedMeshIndex]->getVertexCount());
-    }
 
-    char meshName[128];
-    strcpy(meshName, scene->meshes[selectedMeshIndex]->getName().c_str());
-    if (ImGui::InputText("name", meshName, sizeof(meshName)))
-    {
-      scene->meshes[selectedMeshIndex]->setName(meshName);
+      char meshName[128];
+      strcpy(meshName, scene->meshes[selectedMeshIndex]->getName().c_str());
+      if (ImGui::InputText("name", meshName, sizeof(meshName)))
+      {
+        scene->meshes[selectedMeshIndex]->setName(meshName);
+      }
     }
 
     if (ImGui::CollapsingHeader("transform"))
@@ -323,6 +326,48 @@ void R1::Imgui::drawGui()
               }
             }
           }
+          else if (light->getIsDirectionalLight())
+          {
+            if (ImGui::CollapsingHeader("directional light"))
+            {
+              glm::vec3 direction = light->getLightSourceDirection();
+              float directionVec3[3] = {direction.x, direction.y, direction.z};
+              if (ImGui::DragFloat3("direction", directionVec3, 0.1f, -1000.0f, 1000.0f, "%.1f"))
+              {
+                light->setLightSourceDirection(glm::vec3(directionVec3[0], directionVec3[1], directionVec3[2]));
+              }
+              glm::vec3 ambient = light->getLightSourceAmbient();
+              if (ImGui::DragFloat("ambient", &ambient.x, 0.01f, 0.0f, 50.0f))
+              {
+                light->setLightSourceAmbient(glm::vec3(ambient.x, ambient.x, ambient.x));
+              }
+              glm::vec3 diffuse = light->getLightSourceDiffuse();
+              if (ImGui::DragFloat("diffuse", &diffuse.x, 0.01f, 0.0f, 50.0f))
+              {
+                light->setLightSourceDiffuse(glm::vec3(diffuse.x, diffuse.x, diffuse.x));
+              }
+              glm::vec3 specular = light->getLightSourceSpecular();
+              if (ImGui::DragFloat("specular", &specular.x, 0.01f, 0.0f, 50.0f))
+              {
+                light->setLightSourceSpecular(glm::vec3(specular.x, specular.x, specular.x));
+              }
+              float constant = light->getLightSourceConstant();
+              if (ImGui::DragFloat("constant", &constant, 0.01f, 0.0f, 50.0f))
+              {
+                light->setLightSourceConstant(constant);
+              }
+              float linear = light->getLightSourceLinear();
+              if (ImGui::DragFloat("linear", &linear, 0.001f, 0.0f, 50.0f))
+              {
+                light->setLightSourceLinear(linear);
+              }
+              float quadratic = light->getLightSourceQuadratic();
+              if (ImGui::DragFloat("quadratic", &quadratic, 0.001f, 0.0f, 50.0f))
+              {
+                light->setLightSourceQuadratic(quadratic);
+              }
+            }
+          }
         }
       }
     }
@@ -349,6 +394,22 @@ void R1::Imgui::drawGui()
         {
           for (Texture *texture : textures)
           {
+            if (texture->isDiffuse)
+            {
+              ImGui::SeparatorText("diffuse");
+            }
+            else if (texture->isSpecular)
+            {
+              ImGui::SeparatorText("specular");
+            }
+            else if (texture->isNormal)
+            {
+              ImGui::SeparatorText("normal");
+            }
+            else
+            {
+              ImGui::SeparatorText("unknown");
+            }
             ImGui::Image((void *)(intptr_t)texture->ID, ImVec2(64, 64));
             ImGui::SameLine();
             ImGui::Text(texture->imagePath.c_str());

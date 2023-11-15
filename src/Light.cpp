@@ -118,6 +118,36 @@ float R1::Light::getLightSourceQuadratic()
   return lightSourceQuadratic;
 }
 
+glm::vec3 R1::Light::getLightSourceDirection()
+{
+  return lightSourceDirection;
+}
+
+void R1::Light::setLightSourceDirection(glm::vec3 direction)
+{
+  lightSourceDirection = direction;
+}
+
+void R1::Light::setIsDirectionalLight(bool isDirectionalLight)
+{
+  this->isDirectionalLight = isDirectionalLight;
+}
+
+bool R1::Light::getIsDirectionalLight()
+{
+  return isDirectionalLight;
+}
+
+void R1::Light::setIsSpotLight(bool isSpotLight)
+{
+  this->isSpotLight = isSpotLight;
+}
+
+bool R1::Light::getIsSpotLight()
+{
+  return isSpotLight;
+}
+
 void R1::Light::render(Camera *camera)
 {
   if (!isVisible)

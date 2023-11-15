@@ -260,6 +260,36 @@ std::vector<R1::Texture *> R1::Mesh::getTextures()
   return textures;
 }
 
+void R1::Mesh::setIsSkybox(bool isSkybox)
+{
+  this->isSkybox = isSkybox;
+}
+
+bool R1::Mesh::getIsSkybox()
+{
+  return isSkybox;
+}
+
+void R1::Mesh::setIsDepthTestEnabled(bool isDepthTestEnabled)
+{
+  this->isDepthTestEnabled = isDepthTestEnabled;
+}
+
+bool R1::Mesh::getIsDepthTestEnabled()
+{
+  return isDepthTestEnabled;
+}
+
+void R1::Mesh::setIsWireframeEnabled(bool isWireframeEnabled)
+{
+  this->isWireframeEnabled = isWireframeEnabled;
+}
+
+bool R1::Mesh::getIsWireframeEnabled()
+{
+  return isWireframeEnabled;
+}
+
 void R1::Mesh::addTexture(Texture *texture)
 {
   std::cout << "Mesh::addTexture() " << texture->imagePath << std::endl;
@@ -273,19 +303,41 @@ void R1::Mesh::addTexture(Texture *texture)
   isTextured = true;
 }
 
-void R1::Mesh::render(Camera *camera, std::vector<Light *> pointLightMeshes, bool *isLightsEnabled)
+void R1::Mesh::render(Camera *camera, std::vector<Light *> pointLightMeshes, std::vector<Light *> directionalLightMeshes, std::vector<Light *> spotLightMeshes, bool *isLightsEnabled, bool *isGlobalWireframeEnabled)
 {
-  if (isCamera)
+  if (isCamera || !isVisible)
   {
     return;
   }
 
-  if (!isVisible)
+  if (isSkybox)
   {
-    return;
+    glDepthFunc(GL_LEQUAL);
+    position = camera->getMesh()->getPosition();
+  }
+  else
+  {
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
   }
 
-  glEnable(GL_DEPTH_TEST);
+  if (isDepthTestEnabled)
+  {
+    glEnable(GL_DEPTH_TEST);
+  }
+  else
+  {
+    glDisable(GL_DEPTH_TEST);
+  }
+
+  if (isWireframeEnabled || *isGlobalWireframeEnabled)
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+  else
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
 
   vao->bind();
   shader->activate();
@@ -321,22 +373,39 @@ void R1::Mesh::render(Camera *camera, std::vector<Light *> pointLightMeshes, boo
   {
     if (!pointLightMeshes[i]->getIsVisible())
     {
-      shader->setPointLightEnabled(i, false);
+      shader->setLightBool(i, "pointLight", "enabled", false);
       continue;
     }
-    shader->setPointLightEnabled(i, true);
-    shader->setPointLightColor(i, pointLightMeshes[i]->getLightSourceColor());
-    shader->setPointLightPos(i, pointLightMeshes[i]->getPosition());
-    shader->setPointLightIntensity(i, pointLightMeshes[i]->getLightSourceIntensity());
-    shader->setPointLightAmbient(i, pointLightMeshes[i]->getLightSourceAmbient());
-    shader->setPointLightDiffuse(i, pointLightMeshes[i]->getLightSourceDiffuse());
-    shader->setPointLightSpecular(i, pointLightMeshes[i]->getLightSourceSpecular());
-    shader->setPointLightConstant(i, pointLightMeshes[i]->getLightSourceConstant());
-    shader->setPointLightLinear(i, pointLightMeshes[i]->getLightSourceLinear());
-    shader->setPointLightQuadratic(i, pointLightMeshes[i]->getLightSourceQuadratic());
+    shader->setLightBool(i, "pointLight", "enabled", true);
+    shader->setLightVec4(i, "pointLight", "color", pointLightMeshes[i]->getLightSourceColor());
+    shader->setLightVec3(i, "pointLight", "position", pointLightMeshes[i]->getPosition());
+    shader->setLightFloat(i, "pointLight", "intensity", pointLightMeshes[i]->getLightSourceIntensity());
+    shader->setLightVec3(i, "pointLight", "ambient", pointLightMeshes[i]->getLightSourceAmbient());
+    shader->setLightVec3(i, "pointLight", "diffuse", pointLightMeshes[i]->getLightSourceDiffuse());
+    shader->setLightVec3(i, "pointLight", "specular", pointLightMeshes[i]->getLightSourceSpecular());
+    shader->setLightFloat(i, "pointLight", "constant", pointLightMeshes[i]->getLightSourceConstant());
+    shader->setLightFloat(i, "pointLight", "linear", pointLightMeshes[i]->getLightSourceLinear());
+    shader->setLightFloat(i, "pointLight", "quadratic", pointLightMeshes[i]->getLightSourceQuadratic());
+  }
+
+  for (int i = 0; i < directionalLightMeshes.size(); i++)
+  {
+    if (!directionalLightMeshes[i]->getIsVisible())
+    {
+      shader->setLightBool(i, "directionalLight", "enabled", false);
+      continue;
+    }
+    shader->setLightBool(i, "directionalLight", "enabled", true);
+    shader->setLightVec4(i, "directionalLight", "color", directionalLightMeshes[i]->getLightSourceColor());
+    shader->setLightVec3(i, "directionalLight", "direction", directionalLightMeshes[i]->getLightSourceDirection());
+    shader->setLightFloat(i, "directionalLight", "intensity", directionalLightMeshes[i]->getLightSourceIntensity());
+    shader->setLightVec3(i, "directionalLight", "ambient", directionalLightMeshes[i]->getLightSourceAmbient());
+    shader->setLightVec3(i, "directionalLight", "diffuse", directionalLightMeshes[i]->getLightSourceDiffuse());
+    shader->setLightVec3(i, "directionalLight", "specular", directionalLightMeshes[i]->getLightSourceSpecular());
   }
 
   shader->setPointLightCount(pointLightMeshes.size());
+  shader->setDirectionalLightCount(directionalLightMeshes.size());
   shader->setMaterialShininess(1.0f);
 
   if (isBillboard)

@@ -31,6 +31,17 @@ R1::Shader::Shader(const char *vertexPath, const char *fragmentPath)
   this->fragmentPath = fragmentPath;
 }
 
+R1::Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath)
+{
+  std::cout << "Shader::Shader()" << std::endl;
+  std::cout << "vertexPath: " << vertexPath << std::endl;
+  std::cout << "fragmentPath: " << fragmentPath << std::endl;
+  std::cout << "geometryPath: " << geometryPath << std::endl;
+  this->vertexPath = vertexPath;
+  this->fragmentPath = fragmentPath;
+  this->geometryPath = geometryPath;
+}
+
 void R1::Shader::setup()
 {
   std::cout << "Shader::setup()" << vertexPath << std::endl;
@@ -80,6 +91,11 @@ void R1::Shader::setVec4(const char *name, glm::vec4 value)
   glUniform4fv(glGetUniformLocation(ID, name), 1, glm::value_ptr(value));
 }
 
+void R1::Shader::setMat4(const char *name, glm::mat4 value)
+{
+  glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(value));
+}
+
 void R1::Shader::setColor(glm::vec4 color)
 {
   glUniform4fv(glGetUniformLocation(ID, "color"), 1, glm::value_ptr(color));
@@ -90,79 +106,42 @@ void R1::Shader::setCameraPos(glm::vec3 pos)
   glUniform3fv(glGetUniformLocation(ID, "camPos"), 1, glm::value_ptr(pos));
 }
 
-void R1::Shader::setPointLightColor(int index, glm::vec4 color)
+void R1::Shader::setLightFloat(int index, std::string lightType, std::string name, float value)
 {
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].color";
+  std::string uniformName = lightType + "s[" + std::to_string(index) + "]." + name;
   const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform4fv(glGetUniformLocation(ID, uniformNameCStr), 1, glm::value_ptr(color));
+  glUniform1f(glGetUniformLocation(ID, uniformNameCStr), value);
 }
 
-void R1::Shader::setPointLightPos(int index, glm::vec3 pos)
+void R1::Shader::setLightVec3(int index, std::string lightType, std::string name, glm::vec3 value)
 {
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].position";
+  std::string uniformName = lightType + "s[" + std::to_string(index) + "]." + name;
   const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform3fv(glGetUniformLocation(ID, uniformNameCStr), 1, glm::value_ptr(pos));
+  glUniform3fv(glGetUniformLocation(ID, uniformNameCStr), 1, glm::value_ptr(value));
 }
 
-void R1::Shader::setPointLightAmbient(int index, glm::vec3 ambient)
+void R1::Shader::setLightVec4(int index, std::string lightType, std::string name, glm::vec4 value)
 {
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].ambient";
+  std::string uniformName = lightType + "s[" + std::to_string(index) + "]." + name;
   const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform3fv(glGetUniformLocation(ID, uniformNameCStr), 1, glm::value_ptr(ambient));
+  glUniform4fv(glGetUniformLocation(ID, uniformNameCStr), 1, glm::value_ptr(value));
 }
 
-void R1::Shader::setPointLightDiffuse(int index, glm::vec3 diffuse)
+void R1::Shader::setLightBool(int index, std::string lightType, std::string name, bool value)
 {
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].diffuse";
+  std::string uniformName = lightType + "s[" + std::to_string(index) + "]." + name;
   const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform3fv(glGetUniformLocation(ID, uniformNameCStr), 1, glm::value_ptr(diffuse));
-}
-
-void R1::Shader::setPointLightSpecular(int index, glm::vec3 specular)
-{
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].specular";
-  const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform3fv(glGetUniformLocation(ID, uniformNameCStr), 1, glm::value_ptr(specular));
-}
-
-void R1::Shader::setPointLightConstant(int index, float constant)
-{
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].constant";
-  const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform1f(glGetUniformLocation(ID, uniformNameCStr), constant);
-}
-
-void R1::Shader::setPointLightLinear(int index, float linear)
-{
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].linear";
-  const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform1f(glGetUniformLocation(ID, uniformNameCStr), linear);
-}
-
-void R1::Shader::setPointLightQuadratic(int index, float quadratic)
-{
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].quadratic";
-  const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform1f(glGetUniformLocation(ID, uniformNameCStr), quadratic);
-}
-
-void R1::Shader::setPointLightIntensity(int index, float intensity)
-{
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].intensity";
-  const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform1f(glGetUniformLocation(ID, uniformNameCStr), intensity);
-}
-
-void R1::Shader::setPointLightEnabled(int index, bool enabled)
-{
-  std::string uniformName = "pointLights[" + std::to_string(index) + "].enabled";
-  const GLchar *uniformNameCStr = uniformName.c_str();
-  glUniform1i(glGetUniformLocation(ID, uniformNameCStr), enabled);
+  glUniform1i(glGetUniformLocation(ID, uniformNameCStr), value);
 }
 
 void R1::Shader::setPointLightCount(int count)
 {
   glUniform1i(glGetUniformLocation(ID, "numberOfPointLights"), count);
+}
+
+void R1::Shader::setDirectionalLightCount(int count)
+{
+  glUniform1i(glGetUniformLocation(ID, "numberOfDirectionalLights"), count);
 }
 
 void R1::Shader::setMaterialShininess(float shininess)

@@ -58,6 +58,8 @@ bool R1::Application::setup()
   glCullFace(GL_BACK);
   glFrontFace(GL_CCW);
 
+  glEnable(GL_FRAMEBUFFER_SRGB);
+
   scene = new Scene(window);
   scene->setup();
 

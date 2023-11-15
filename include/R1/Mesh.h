@@ -30,7 +30,7 @@ namespace R1
     ~Mesh();
     void setup();
     void cleanup();
-    void render(Camera *camera, std::vector<Light *> pointLightMeshes, bool *isLightsEnabled);
+    void render(Camera *camera, std::vector<Light *> pointLightMeshes, std::vector<Light *> directionalLightMeshes, std::vector<Light *> spotLightMeshes, bool *isLightsEnabled, bool *isGlobalWireframeEnabled);
     void setIndices(unsigned int *indices, size_t indexCount);
     void setVertices(float *vertices, size_t vertexCount);
     void setPosition(glm::vec3 position);
@@ -45,6 +45,9 @@ namespace R1
     void setIsCamera(bool isCamera);
     void setIsCameraDeleted(bool isCameraDeleted);
     void setIsVisible(bool isVisible);
+    void setIsSkybox(bool isSkybox);
+    void setIsDepthTestEnabled(bool isDepthTestEnabled);
+    void setIsWireframeEnabled(bool isWireframeEnabled);
     void addTexture(Texture *texture);
     void deleteCamera();
     std::string getName();
@@ -63,6 +66,9 @@ namespace R1
     bool getIsCameraDeleted();
     bool getIsTextured();
     bool getIsVisible();
+    bool getIsSkybox();
+    bool getIsDepthTestEnabled();
+    bool getIsWireframeEnabled();
     int getVertexCount();
     int getIndexCount();
     int getVerticesCount();
@@ -93,6 +99,9 @@ namespace R1
     bool isMultipleTextured = false;
     bool isCamera = false;
     bool isVisible = true;
+    bool isSkybox = false;
+    bool isDepthTestEnabled = true;
+    bool isWireframeEnabled = false;
     VAO *vao;
     VBO *vbo;
     EBO *ebo;

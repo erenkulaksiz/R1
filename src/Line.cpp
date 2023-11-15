@@ -6,7 +6,7 @@
 
 R1::Line::Line(glm::vec3 end)
 {
-  lineShader = new Shader("shaders/line.vert", "shaders/line.frag");
+  lineShader = new Shader("D:/dosyalar/R1/src/shaders/line.vert", "D:/dosyalar/R1/src/shaders/line.frag");
   lineShader->setup();
 
   vao = new VAO();

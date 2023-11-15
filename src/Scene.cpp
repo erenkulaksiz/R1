@@ -20,12 +20,6 @@ GLuint planeIndices[] =
         0, 2, 1,
         0, 3, 2};
 
-std::vector<glm::vec3> cubePositions = {
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(2.0f, 4.0f, 2.0f),
-    glm::vec3(2.0f, 0.0f, 0.0f),
-};
-
 R1::Scene::Scene(GLFWwindow *window)
 {
   std::cout << "Scene::Scene()" << std::endl;
@@ -67,27 +61,40 @@ void R1::Scene::setup()
   yline->setColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
   zline->setColor(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-  for (int index = 0; index < cubePositions.size(); ++index)
-  {
-    const glm::vec3 &position = cubePositions[index];
-    glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    if (index == 1)
-    {
-      rotation = glm::vec3(0.0f, 45.0f, 0.0f);
-    }
+  ModelHandler *skybox = new ModelHandler("D:/dosyalar/R1/src/resources/skybox.obj");
+  std::vector<Mesh *> skyboxMesh = skybox->loadMeshes("D:/dosyalar/R1/src/shaders/skybox.vert", "D:/dosyalar/R1/src/shaders/skybox.frag");
+  skyboxMesh[0]->setIsSkybox(true);
+  skyboxMesh[0]->setScale(glm::vec3(20.0f));
+  skyboxMesh[0]->setName("skybox");
+  meshes.push_back(skyboxMesh[0]);
 
-    ModelHandler *testCube = new ModelHandler("resources/cube_textured.obj");
-    std::vector<Mesh *> testCubeMesh = testCube->loadMeshes();
-    testCubeMesh[0]->setRotation(rotation);
-    testCubeMesh[0]->setPosition(position);
+  ModelHandler *testCube = new ModelHandler("D:/dosyalar/R1/src/resources/cube_textured.obj");
+  std::vector<Mesh *> testCubeMesh = testCube->loadMeshes("D:/dosyalar/R1/src/shaders/default_light.vert", "D:/dosyalar/R1/src/shaders/default_light.frag");
+  testCubeMesh[0]->setName("test cube");
+  meshes.push_back(testCubeMesh[0]);
 
-    meshes.push_back(testCubeMesh[0]);
-  }
+  ModelHandler *testHome = new ModelHandler("D:/dosyalar/R1/src/resources/test_home.obj");
+  std::vector<Mesh *> testHomeMesh = testHome->loadMeshes("D:/dosyalar/R1/src/shaders/default_light.vert", "D:/dosyalar/R1/src/shaders/default_light.frag");
+  testHomeMesh[0]->setName("test home");
+  meshes.push_back(testHomeMesh[0]);
 
-  Shader *billboardShader = new Shader("shaders/billboard.vert", "shaders/billboard.frag");
+  ModelHandler *testCube2 = new ModelHandler("D:/dosyalar/R1/src/resources/cube_textured.obj");
+  std::vector<Mesh *> testCubeMesh2 = testCube2->loadMeshes("D:/dosyalar/R1/src/shaders/textured_w_skybox.vert", "D:/dosyalar/R1/src/shaders/textured_w_skybox.frag");
+  testCubeMesh2[0]->setName("test cube 2 skyboxed");
+  testCubeMesh2[0]->setPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+  meshes.push_back(testCubeMesh2[0]);
+
+  ModelHandler *testCubeNormal = new ModelHandler("D:/dosyalar/R1/src/resources/wood_cube.obj");
+  std::vector<Mesh *> testCubeNormalMesh = testCubeNormal->loadMeshes("D:/dosyalar/R1/src/shaders/default_light.vert", "D:/dosyalar/R1/src/shaders/default_light.frag");
+  testCubeNormalMesh[0]->setName("normal cube");
+  testCubeNormalMesh[0]->setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
+  meshes.push_back(testCubeNormalMesh[0]);
+
+  Shader *billboardShader = new Shader("D:/dosyalar/R1/src/shaders/billboard.vert", "D:/dosyalar/R1/src/shaders/billboard.frag");
   billboardShader->setup();
-  Texture *billboardTexture = new Texture("resources/default3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+  Texture *billboardTexture = new Texture("D:/dosyalar/R1/src/resources/default3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
   billboardTexture->setup();
+  billboardTexture->isDiffuse = true;
   billboardTexture->texUnit(billboardShader, "tex0", 0);
 
   Mesh *billboard = new Mesh(glm::vec3(5.0f, 8.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), billboardShader);
@@ -97,10 +104,11 @@ void R1::Scene::setup()
   billboard->setup();
   meshes.push_back(billboard);
 
-  Shader *pointLightShader = new Shader("shaders/point_light.vert", "shaders/point_light.frag");
+  Shader *pointLightShader = new Shader("D:/dosyalar/R1/src/shaders/point_light.vert", "D:/dosyalar/R1/src/shaders/point_light.frag");
   pointLightShader->setup();
-  Texture *pointLightTexture = new Texture("resources/point_light.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+  Texture *pointLightTexture = new Texture("D:/dosyalar/R1/src/resources/point_light.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
   pointLightTexture->setup();
+  pointLightTexture->isDiffuse = true;
   pointLightTexture->texUnit(pointLightShader, "tex0", 0);
 
   Light *pointLight = new Light(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), pointLightShader);
@@ -109,13 +117,15 @@ void R1::Scene::setup()
   pointLight->setIsPointLight(true);
   pointLight->setLightSourceColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
   pointLight->setup();
+  pointLight->setIsVisible(false); // temp
   pointLightMeshes.push_back(pointLight);
   meshes.push_back(pointLight);
 
-  Shader *pointLightShader2 = new Shader("shaders/point_light.vert", "shaders/point_light.frag");
+  Shader *pointLightShader2 = new Shader("D:/dosyalar/R1/src/shaders/point_light.vert", "D:/dosyalar/R1/src/shaders/point_light.frag");
   pointLightShader2->setup();
-  Texture *pointLightTexture2 = new Texture("resources/point_light.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+  Texture *pointLightTexture2 = new Texture("D:/dosyalar/R1/src/resources/point_light.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
   pointLightTexture2->setup();
+  pointLightTexture2->isDiffuse = true;
   pointLightTexture2->texUnit(pointLightShader2, "tex0", 0);
 
   Light *pointLight2 = new Light(glm::vec3(4.0f, 4.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), pointLightShader2);
@@ -124,15 +134,43 @@ void R1::Scene::setup()
   pointLight2->setIsPointLight(true);
   pointLight2->setLightSourceColor(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
   pointLight2->setup();
+  pointLight2->setIsVisible(false); // temp
   pointLightMeshes.push_back(pointLight2);
   meshes.push_back(pointLight2);
 
+  Shader *directionalLightShader = new Shader("D:/dosyalar/R1/src/shaders/directional_light.vert", "D:/dosyalar/R1/src/shaders/directional_light.frag");
+  directionalLightShader->setup();
+  Texture *directionalLightTexture = new Texture("D:/dosyalar/R1/src/resources/directional_light.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+  directionalLightTexture->setup();
+  directionalLightTexture->isDiffuse = true;
+  directionalLightTexture->texUnit(directionalLightShader, "tex0", 0);
+
+  Light *directionalLight = new Light(glm::vec3(0.0f, -4.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), directionalLightShader);
+  directionalLight->setName("directional light");
+  directionalLight->addTexture(directionalLightTexture);
+  directionalLight->setIsDirectionalLight(true);
+  directionalLight->setLightSourceColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  directionalLight->setup();
+  directionalLightMeshes.push_back(directionalLight);
+  meshes.push_back(directionalLight);
+
+  /*
   ModelHandler *testPlane = new ModelHandler("resources/test_plane.obj");
-  std::vector<Mesh *> testPlaneMeshes = testPlane->loadMeshes();
-  for (Mesh *mesh : testPlaneMeshes)
+  std::vector<Mesh *> testPlaneMesh = testPlane->loadMeshes();
+  for (Mesh *mesh : testPlaneMesh)
   {
+    mesh->setPosition(glm::vec3(5.0f, 5.0f, 0.0f));
     meshes.push_back(mesh);
   }
+
+  ModelHandler *testPlane2 = new ModelHandler("resources/plane_test_3.fbx");
+  std::vector<Mesh *> testPlaneMesh2 = testPlane2->loadMeshes();
+  for (Mesh *mesh : testPlaneMesh2)
+  {
+    mesh->setPosition(glm::vec3(5.0f, -5.0f, 0.0f));
+    mesh->setName("plane_test_3");
+    meshes.push_back(mesh);
+  }*/
 }
 
 R1::Camera *R1::Scene::getCamera()
@@ -197,7 +235,7 @@ void R1::Scene::loop()
     }
     else
     {
-      mesh->render(camera, pointLightMeshes, &isLightsEnabled);
+      mesh->render(camera, pointLightMeshes, directionalLightMeshes, spotLightMeshes, &isLightsEnabled, &isGlobalWireframeEnabled);
     }
     if (mesh->getIsSelected() && isDrawingLines)
     {

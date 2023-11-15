@@ -10,7 +10,7 @@ namespace R1
   {
   public:
     ModelHandler(std::string fileName);
-    std::vector<Mesh *> loadMeshes();
+    std::vector<Mesh *> loadMeshes(const char *vertexPath, const char *fragmentPath);
 
   private:
     std::vector<Mesh *> meshes;

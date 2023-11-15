@@ -26,15 +26,19 @@ namespace R1
     bool isLightMeshesVisible = true;
     bool isVsyncEnabled = true;
     bool isLightsEnabled = true;
+    bool isGlobalWireframeEnabled = false;
     float previousFrame;
     float fps;
     float deltaTime;
     float currentFrame;
     std::vector<Mesh *> meshes;
     std::vector<Light *> pointLightMeshes;
+    std::vector<Light *> directionalLightMeshes;
+    std::vector<Light *> spotLightMeshes;
     glm::vec4 backgroundColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
   private:
+    Texture *shadowTexture;
     std::string name;
     Camera *camera;
     GLFWwindow *window;
